@@ -22,7 +22,7 @@ export function downImpact(data,states,minute){
   });
 }
 export function seedMaintenance(data,cutoff,stateAt){
-  const reasons={'A-ETCH-1':['VACUUM LOW','진공 압력 인터록','진공 누설 및 펌프 상태 점검'], 'B-CVD-1':['RF MATCH FAIL','RF 매칭 이상','RF 계통 진단 및 챔버 점검'], 'A-MET-1':['STAGE ERROR','계측 스테이지 알람','스테이지 정렬 및 반복 정밀도 확인']};
+  const reasons={'M10-ETCH-1':['VACUUM LOW','진공 압력 인터록','진공 누설 및 펌프 상태 점검'], 'M14-CVD-1':['RF MATCH FAIL','RF 매칭 이상','RF 계통 진단 및 챔버 점검'], 'R3-MET-1':['STAGE ERROR','계측 스테이지 알람','스테이지 정렬 및 반복 정밀도 확인']};
   for(const tool of data.equipment){
     tool.maintenance=[];
     if(tool.availability==='PM'){const start=cutoff;tool.maintenance.push({id:`${tool.id}-COPM`,kind:'PM',code:'COPM',start,end:null,reason:'정기 PM',alarm:'COPM',owner:'설비 보전',updates:[{time:start,status:'정비 진행',note:'정기 챔버 청소 및 소모품 점검 · 가상 인폼노트'}],estimate:recoveryEstimate(tool.id,'COPM',start)});}
@@ -30,7 +30,7 @@ export function seedMaintenance(data,cutoff,stateAt){
     if(!reasons[tool.id])continue;
     tool.maintenance.push({id:`${tool.id}-DOWN-PREV`,kind:'DOWN',start:-1440,end:-1260,reason:'이전 챔버 인터록 점검',alarm:'INTERLOCK',owner:'설비 보전',updates:[{time:-1440,status:'접수',note:'이상 알람 확인 및 점검 접수'},{time:-1350,status:'정비 완료',note:'센서 점검 및 부품 교체'},{time:-1260,status:'복구 승인',note:'공정 적격성 확인 후 READY 복귀'}]});
     const [alarm,reason,note]=reasons[tool.id];
-    const code=tool.id==='B-CVD-1'?'NPM_RF':tool.id==='A-MET-1'?'NPM_STAGE':'DOWN';
+    const code=tool.id==='M14-CVD-1'?'NPM_RF':tool.id==='R3-MET-1'?'NPM_STAGE':'DOWN';
     tool.maintenance.push({id:`${tool.id}-DOWN-01`,kind:'DOWN',code,start:cutoff,end:null,reason,alarm,owner:'설비 보전 / 공정기술',updates:[{time:cutoff,status:'접수 / 진단 대기',note}],estimate:recoveryEstimate(tool.id,code,cutoff),restoration:'가상 복구 추정 · 실제 승인 필요'});
     // All demo failures begin at the observation boundary; no fabricated earlier outage.
     for(const lot of data.lots){const s=stateAt(lot,cutoff);if(!s||s.nextNode!=null||![1,2].includes(s.event[2])||lot.equipmentByStep[s.event[1]]!==tool.id)continue;

@@ -44,11 +44,11 @@ test('screen-space orbit follows drag axes in both orientations, even after prio
 });
 test('route alternatives split and merge; every realized lot path uses a valid directed edge',()=>{
   const edges=new Map(data.edges.map(e=>[`${e.source}:${e.target}`,e]));
-  assert.equal(data.lots.length,1800);assert.equal(data.routes.length,24);
+  assert.equal(data.lots.length,6000);assert.equal(data.routes.length,24);
   assert.ok(new Set(data.routes.map(r=>r.segments.length)).size>1);
-  assert.equal(new Set(data.routes.flatMap(r=>r.codes)).size,120);
+  assert.equal(new Set(data.routes.flatMap(r=>r.codes)).size,360);
   for(const e of data.edges)assert.ok(data.nodes[e.source].x<data.nodes[e.target].x,'forward route ordering');
-  for(const r of data.routes)assert.ok(r.segments.some(s=>s.length===2));
+  for(const r of data.routes)assert.equal(r.segments.some(s=>s.length===2),r.program==='R&D');
   for(const lot of data.lots){
     assert.ok(data.routes[lot.route].codes.includes(lot.code));
     for(let p=1;p<lot.path.length;p++)assert.ok(edges.get(`${lot.path[p-1]}:${lot.path[p]}`)?.routes.includes(lot.route));
@@ -67,7 +67,7 @@ test('WIP, out and unreleased reconcile at time boundaries',()=>{
   for(const time of [0,1,1440,5000,10080]){
     let wip=0,out=0,unreleased=0;
     for(const lot of data.lots){const state=lotState(lot,time);if(!state)unreleased++;else if(state.event[2]===5)out++;else wip++;}
-    assert.equal(wip+out+unreleased,1800);
+    assert.equal(wip+out+unreleased,6000);
   }
 });
 test('3D projection uses route depth and changes with orbit',()=>{
@@ -90,7 +90,7 @@ test('explicit travel keeps its fractional position even when arrival is outside
 test('route entry and exit vary, routes cross layers, equipment respects fab and role',()=>{
   assert.ok(data.routes.some(r=>r.entryStage>0));assert.ok(data.routes.some(r=>r.exitStage<11));
   for(const route of data.routes){assert.equal(data.nodes[route.segments[0][0]].stage,route.entryStage);assert.equal(data.nodes[route.segments.at(-1)[0]].stage,route.exitStage);assert.ok(new Set(route.segments.flat().map(n=>data.nodes[n].layer)).size>1);}
-  for(const node of data.nodes)for(const fab of ['A','B'])for(const role of ['primary','backup'])for(const id of node.equipment[fab][role]){const tool=data.equipment.find(e=>e.id===id);assert.equal(tool.fab,fab);assert.equal(tool.role,role);}
+  for(const node of data.nodes)for(const fab of data.fabs)for(const role of ['primary','backup'])for(const id of node.equipment[fab][role]){const tool=data.equipment.find(e=>e.id===id);assert.equal(tool.fab,fab);assert.equal(tool.role,role);}
 });
 test('rankings change with time and count only lots resident at a process',()=>{
   const states=t=>data.lots.map(l=>lotState(l,t)).filter(Boolean);

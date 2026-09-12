@@ -1,0 +1,43 @@
+#theme-toggle{white-space:nowrap;font:10px monospace;border:1px solid var(--border);padding:7px 9px}html[data-theme=light]{color-scheme:light;--bg:#eef3f6;--panel:#fff;--border:#cad5dd;--ink:#203440;--muted:#506773;--accent:#136b59}html[data-theme=light] body{background:var(--bg)}html[data-theme=light] :is(header,#sidebar,.toolbar,.timeline,.status-strip,.wip-panel,#down-dashboard){background:#f8fafb;color:var(--ink)}html[data-theme=light] #canvas-area{background:#eef3f6}html[data-theme=light] :is(input,select,#hold-insights input,#visual-lens){background:#fff;color:var(--ink);border-color:var(--border)}html[data-theme=light] button:hover{background:#1f52600c}html[data-theme=light] :is(#inspector,#analytics-panel,#maintenance-panel,#tooltip,#comparison,#mini-panel,#visual-controls,#loading){background:#fffffff5;color:var(--ink);border-color:#a7bac6;box-shadow:0 6px 24px #183b5010}html[data-theme=light] #area-load-bars button{background:#f8fafbf5;color:#324d5d}html[data-theme=light] #area-load-bars button[aria-pressed=true]{background:#dcece7}html[data-theme=light] :is(h1,h2,h3,.route-item strong,.wip-panel button span,.stat strong,.facts strong,.insight-numbers strong,.insight-row,.insight-row strong,.popup-lot>button,.equipment-table td,.history-entry,.compare-heading,#area-load-bars strong){color:#213d4a}html[data-theme=light] :is(.analysis-note,#inspector p,.facts span,.insight-row small,.hold-insight small,.insight-numbers span,.legend span,.caption p,h1 span,.area-key small,.sidebar-heading,.breadcrumb,.route-item small,.route-item em,.wip-panel button small,.wip-panel>p,.toolbar>label,.stat,.eyebrow,#graph-help,.visual-heading,.visual-heading small,#area-load-bars small,#maintenance-panel small,.compare-items span,.compare-items small,.popup-lot small,.popup-lot label,.history-entry small,.search-results small,footer,.scrubber>div){color:#526b78}html[data-theme=light] :is(.hold-insight button,.stat.hold strong,#maintenance-panel em,#down-count){color:#a82f45}html[data-theme=light] :is(.forecast-days button,.forecast-assumptions,#compare-limit,.wip-panel button strong,.wip-panel button b,.down-warning){color:#85560e}html[data-theme=light] :is(#equipment-match){background:#e5f4f8;color:#125b78}html[data-theme=light] #forecast-banner{background:#fff0cf;color:#81500b}html[data-theme=light] .forecast-axis>span:last-child,html[data-theme=light] .forecast-axis button{color:#85560e}html[data-theme=light] #down-areas .down-area button{background:#fae9e9;color:#963545}html[data-theme=light] .down-clear{color:#647985}html[data-theme=light] :is(#analytics-panel a,.equipment-table td:first-child,#mini-fit){color:#116b72}html[data-theme=light] #observation-mode{color:#126951;background:#e3f1eb;border-color:#5c9c8a}html[data-theme=light] #observation-mode[data-phase=PAST]{color:#3c5c7d;background:#e5edf6}html[data-theme=light] #observation-mode[data-phase=SIMULATION]{color:#865305;background:#fff0ce}html[data-theme=light] .area-key span{color:color-mix(in srgb,var(--area-color) 50%,#10222c)}html[data-theme=light] .compare-items strong{color:color-mix(in srgb,var(--compare-color) 45%,#10222c)}html[data-theme=light] .detail-status{color:color-mix(in srgb,var(--state-color) 50%,#10222c)}@media(max-width:700px){header{gap:10px}#theme-toggle{font-size:9px;padding:6px}.sample{letter-spacing:0}}
+/* Screen-wide digital substrate, independent of the route/site footprint. */
+html #canvas-area{
+ background-color:#101d29;
+ background-image:
+  radial-gradient(ellipse at 18% 18%,#24776c45,transparent 53%),
+  radial-gradient(ellipse at 88% 78%,#365fa94d,transparent 55%),
+  linear-gradient(125deg,transparent 35%,#63b9c009 35.1%,transparent 35.3%,transparent 68%,#6d96d412 68.1%,transparent 68.3%),
+  linear-gradient(#87b9cc0b 1px,transparent 1px),
+  linear-gradient(90deg,#87b9cc0b 1px,transparent 1px),
+  linear-gradient(145deg,#112c30,#131d2e 65%,#14283c);
+ background-size:auto,auto,auto,64px 64px,64px 64px,auto;
+}
+html[data-theme=light] #canvas-area{
+ background-color:#e5edf3;
+ background-image:
+  radial-gradient(ellipse at 12% 12%,#89cbb96b,transparent 52%),
+  radial-gradient(ellipse at 92% 85%,#87acdf66,transparent 56%),
+  linear-gradient(125deg,transparent 35%,#ffffff70 35.1%,transparent 35.4%,transparent 68%,#648eae20 68.1%,transparent 68.4%),
+  linear-gradient(#527d9210 1px,transparent 1px),
+  linear-gradient(90deg,#527d9210 1px,transparent 1px),
+  linear-gradient(145deg,#e3f0ed,#e7edf4 65%,#d9e6f2);
+ background-size:auto,auto,auto,64px 64px,64px 64px,auto;
+}
+/* Neutral field; geometric detail is restricted to the outer corners. */
+html #canvas-area{
+ background-color:#1b1e21;
+ background-image:none;
+ background-size:cover;background-position:center;background-repeat:no-repeat;
+}
+html[data-theme=light] #canvas-area{
+ background-color:#eceeef;
+ background-image:none;
+ background-size:cover;background-position:center;background-repeat:no-repeat;
+}
+html #canvas-area::before,html #canvas-area::after{
+ content:'';position:absolute;width:min(220px,18%);height:160px;
+ background:url('./assets/corner-facets.svg') top left / contain no-repeat;
+ pointer-events:none;z-index:0;
+}
+html #canvas-area::before{top:0;left:0}
+html #canvas-area::after{bottom:0;right:0;transform:rotate(180deg)}
+html #graph{position:relative;z-index:0}

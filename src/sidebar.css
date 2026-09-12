@@ -1,0 +1,27 @@
+html #sidebar{display:block;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;background:var(--panel)}
+html #sidebar>.sidebar-heading{display:flex;align-items:center;justify-content:space-between;padding:17px 14px;margin:0;border-bottom:1px solid var(--border);font-size:13px;color:var(--ink)}
+html #sidebar-fold{font-size:10px;padding:4px;color:var(--muted)}
+.sidebar-section{border-bottom:1px solid var(--border)}
+.sidebar-section>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px;color:var(--ink);user-select:none}
+.sidebar-section>summary::-webkit-details-marker{display:none}
+.sidebar-section>summary strong{display:block;font-size:12px;font-weight:600}
+.sidebar-section>summary small{display:block;margin-top:5px;font-size:10px;color:var(--muted);line-height:1.5;overflow-wrap:anywhere}
+.sidebar-section>summary:focus-visible{outline:1px solid var(--accent);outline-offset:-2px}
+.sidebar-section[open]>summary{background:color-mix(in srgb,var(--accent) 6%,transparent);border-left:2px solid var(--accent);padding-left:12px}
+.section-chevron{transition:transform .16s;font-size:15px;color:var(--muted)}
+.sidebar-section[open] .section-chevron{transform:rotate(180deg)}
+.sidebar-section-body{padding:10px 0 14px}
+html #sidebar .sidebar-section-body>label{display:block;margin:8px 16px 6px;font-size:10px;color:var(--muted)}
+html #sidebar .equipment-search{margin:0 16px;display:flex}
+html #sidebar .equipment-search input{width:100%;min-width:0;box-sizing:border-box;padding:8px;font-size:10px}
+html #sidebar .equipment-search button{padding:5px}
+html #sidebar #route-list{min-height:0;max-height:none;overflow:visible;flex:none}
+html #sidebar #down-dashboard,html #sidebar .wip-panel{max-height:none;min-height:0;overflow:visible;flex:none;margin:0;padding:0;border:0}
+html #sidebar #down-areas{max-height:none;overflow:visible}
+html #sidebar #down-dashboard>.sidebar-heading{display:none}
+html #sidebar .wip-panel .sidebar-heading{padding:4px 14px 8px;font-size:10px}
+html #sidebar .wip-panel>p{margin:4px 14px 8px;font-size:9px}
+html #sidebar .route-item{padding:10px 14px}
+html #sidebar #all-routes{display:block;width:calc(100% - 28px);margin:6px 14px;padding:7px;border:1px solid var(--border);font-size:10px}
+html #sidebar footer{padding:14px;color:var(--muted);font-size:9px;border:0}
+@media(prefers-reduced-motion:reduce){.section-chevron{transition:none}}

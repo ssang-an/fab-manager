@@ -1,0 +1,23 @@
+/* Transform-only motion; no continuously running JS or canvas animation. */
+#copilot-dock #assistant-open{display:block;width:112px;height:120px;padding:0;border:0;background:transparent;box-shadow:none;cursor:pointer;isolation:isolate}
+#copilot-dock #assistant-open:hover{background:transparent}
+.guardian-pet{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 5px 4px #0003);transform-origin:50% 88%;animation:guardian-idle 5s ease-in-out infinite;pointer-events:none;user-select:none}
+#assistant-open:hover .guardian-pet,#assistant-open:focus-visible .guardian-pet{animation:guardian-greet .8s ease-in-out 2}
+#assistant-open.guardian-alert .guardian-pet{animation:guardian-hop .65s ease-in-out 2}
+#assistant-open:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:16px}
+#copilot-dock #copilot-dot{right:17px;top:14px;width:8px;height:8px;box-shadow:0 0 0 3px var(--panel)}
+#copilot-dock #copilot-bubble{border-radius:18px;padding:14px 16px;box-shadow:0 8px 30px #0002;width:280px}
+#copilot-bubble:after{right:44px;border-radius:0 0 3px 0}
+#copilot-bubble>div strong{font-size:11px;font-weight:600}
+#copilot-action{border-radius:8px;padding:6px 8px;background:color-mix(in srgb,var(--accent) 9%,transparent)}
+#copilot-dismiss{border-radius:50%;width:24px;height:24px}
+#canvas-area #mini-panel{bottom:146px}
+@keyframes guardian-idle{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-4px) rotate(2deg)}}
+@keyframes guardian-greet{0%,100%{transform:rotate(0)}30%{transform:rotate(-8deg) translateY(-3px)}65%{transform:rotate(7deg) translateY(-3px)}}
+@keyframes guardian-hop{0%,100%{transform:translateY(0) scale(1)}25%{transform:translateY(2px) scale(1.03,.97)}55%{transform:translateY(-12px) rotate(-5deg)}80%{transform:translateY(0) scale(1.03,.97)}}
+@media(prefers-reduced-motion:reduce){#copilot-dock .guardian-pet,#copilot-dock #assistant-open .guardian-pet,#copilot-dock #copilot-bubble{animation:none}}
+@media(max-width:700px){#copilot-dock #assistant-open{width:88px;height:96px}#copilot-dock #copilot-bubble{width:min(260px,calc(100vw - 64px))}#canvas-area #mini-panel{bottom:120px}}
+.guardian-emote{position:absolute;right:9px;top:-4px;min-width:24px;height:28px;display:grid;place-items:center;background:#ffc567;color:#332612;border:2px solid var(--panel);border-radius:10px;font:bold 21px Arial;box-shadow:0 3px 8px #0002;animation:guardian-emote-in .35s ease-out}.guardian-emote[hidden]{display:none}.guardian-mini{width:34px;height:36px;object-fit:contain}#assistant-open[data-pose=think] .guardian-pet{animation:guardian-idle 2.5s ease-in-out infinite}#assistant-open[data-pose=alert] #copilot-dot{display:none}@keyframes guardian-emote-in{from{transform:scale(.3) translateY(8px);opacity:0}to{transform:scale(1);opacity:1}}@media(prefers-reduced-motion:reduce){.guardian-emote,#assistant-open[data-pose=think] .guardian-pet{animation:none}}
+#canvas-area #mini-panel{left:18px;right:auto;bottom:38px}
+@media(max-width:700px){#canvas-area #mini-panel{left:12px;right:auto;bottom:38px}}
+#canvas-area:has(#copilot-bubble:not([hidden])) #mini-panel{visibility:visible}

@@ -7,9 +7,10 @@ export function holdHistory(data,lots=data.lots,until=OBSERVED_END){
     const finish=t=>{if(open){open.row.lotHours+=(t-open.start)/60;open=null;}};
     for(const e of lot.events){if(e[0]>end)break;const node=lot.path[e[1]],key=`${lot.id}|${e[1]}`;
       if(!seen.has(key)){seen.add(key);visits.set(node,(visits.get(node)||0)+1);}
-      if(open&&(e[2]!==3||open.node!==node))finish(e[0]);
-      if(e[2]!==3||open)continue;
-      const code=lot.holdReasons?.[e[0]]||'UNKNOWN',id=`${node}|${code}`;
+      const held=e[2]===3||e[4]==='SEND';
+      if(open&&(!held||open.node!==node))finish(e[0]);
+      if(!held||open)continue;
+      const code=e[4]==='SEND'?'SEND':lot.holdReasons?.[e[0]]||'UNKNOWN',id=`${node}|${code}`;
       const row=groups.get(id)||{node,code,count:0,lotHours:0,affected:new Set(),days:new Set(),open:0};
       row.count++;row.affected.add(key);row.days.add(Math.floor(e[0]/1440));groups.set(id,row);open={node,start:e[0],row};
     }

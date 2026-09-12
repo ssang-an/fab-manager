@@ -1,0 +1,28 @@
+html body>header{background:#17191d!important;color:#eef1f4!important;border-bottom:1px solid #34383e;--ink:#eef1f4;--muted:#abb3bd;--border:#434950;--accent:#8bd9c3}
+html body>header .breadcrumb,html body>header .sample{color:#aeb6c0!important}
+html body>header .brand,html body>header button{color:#e3e8ed}
+html body>header .brand b{color:#8bd9c3}
+html body>header button:hover{background:#ffffff14!important}
+html body>header .profile-avatar{background:#373c44;color:#eef1f4}
+#copilot-dock{position:absolute;right:18px;bottom:14px;z-index:7;display:flex;align-items:flex-end;flex-direction:column;gap:10px;max-width:calc(100% - 36px)}
+#copilot-dock #assistant-open{display:flex;align-items:center;gap:10px;position:relative;padding:7px 12px 7px 8px;background:#20292c;color:#f0f6f4;border:1px solid #56736b;box-shadow:0 5px 18px #0002;text-align:left;font-size:12px}
+#assistant-open small{display:block;font-size:9px;color:#a6c6ba;font-weight:400;margin-top:4px}
+.copilot-pet{width:42px;height:38px;border-radius:12px 12px 9px 9px;position:relative;background:#b4dfcd;border:2px solid #d0efe1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px;transform:rotate(-4deg)}
+.copilot-pet:before{content:'';position:absolute;width:4px;height:7px;background:#b4dfcd;top:-8px;left:18px}
+.pet-eyes{display:flex;gap:10px}.pet-eyes i{width:4px;height:6px;background:#233e38;border-radius:2px}
+.pet-mouth{width:10px;height:3px;border-bottom:2px solid #355e51;border-radius:50%}
+#assistant-open:hover .copilot-pet{transform:rotate(3deg);transition:transform .2s}
+#copilot-dot{position:absolute;right:6px;top:5px;width:7px;height:7px;border-radius:50%;background:#f4b263}
+#copilot-bubble{width:290px;max-width:100%;background:var(--panel);color:var(--ink);border:1px solid var(--border);padding:12px 14px;box-shadow:0 5px 24px #0002;position:relative;animation:copilot-arrive .3s ease-out}
+#copilot-bubble:after{content:'';position:absolute;right:28px;bottom:-6px;width:10px;height:10px;background:var(--panel);border-right:1px solid var(--border);border-bottom:1px solid var(--border);transform:rotate(45deg)}
+#copilot-bubble>div{display:flex;justify-content:space-between;align-items:center;font-size:12px}
+#copilot-dismiss{padding:0 3px;font-size:17px}
+#copilot-phase{display:block;color:var(--muted);font-size:9px;margin:7px 0}
+#copilot-alert-text{font-size:12px;line-height:1.8;margin:8px 0}
+#copilot-action{color:var(--accent);padding:4px 0;font-size:11px}
+#canvas-area #mini-panel{bottom:94px}
+#canvas-area:has(#copilot-bubble:not([hidden])) #mini-panel{visibility:hidden}
+#canvas-area:has(#assistant-panel:not([hidden])) #copilot-dock{display:none}
+@keyframes copilot-arrive{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){#copilot-bubble{animation:none}#assistant-open:hover .copilot-pet{transition:none}}
+@media(max-width:700px){#copilot-dock{right:12px;bottom:12px}#copilot-dock #assistant-open{font-size:11px}#assistant-open small{display:none}}

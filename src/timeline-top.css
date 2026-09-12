@@ -1,0 +1,29 @@
+html .workspace>.timeline{min-height:0!important;height:36px;box-sizing:border-box;padding:4px 16px;gap:14px;border-top:0;border-bottom:1px solid var(--border);background:var(--panel);flex-shrink:0}
+html .timeline .time-control{gap:10px;flex-shrink:0}
+html .timeline .time-control>div{display:flex;align-items:center;gap:8px}
+html .timeline #mode{margin:0;font-size:8px}
+html .timeline #time-label{font-size:11px;font-variant-numeric:tabular-nums}
+html .timeline #play{width:26px;padding:4px}
+html .timeline #speed{padding:3px;font-size:10px}
+html .timeline .scrubber{min-width:160px}
+html .timeline #time{margin:0;height:4px}
+html .timeline .scrubber>div{white-space:nowrap;gap:10px;line-height:1.4;font-variant-numeric:tabular-nums}
+html .timeline .scrubber>div,html .timeline .forecast-axis{display:none!important}
+html .timeline #latest{white-space:nowrap;font-size:10px;padding:6px}
+@media(max-width:700px){html .workspace>.timeline{height:auto;min-height:36px!important;flex-wrap:wrap;padding:5px 12px;gap:7px 10px}html .timeline .time-control{flex:1}html .timeline .scrubber{order:3;flex-basis:100%;padding:3px 0}}
+html .timeline #play{display:grid;place-items:center;width:26px;height:26px;padding:5px;border:1px solid color-mix(in srgb,var(--accent) 45%,var(--border));border-radius:7px;background:color-mix(in srgb,var(--accent) 10%,var(--panel));color:var(--accent);transition:background .15s,transform .15s}
+html .timeline #play svg{display:block;width:15px;height:15px;fill:currentColor}html .timeline #play:hover{background:color-mix(in srgb,var(--accent) 22%,var(--panel));transform:scale(1.06)}html .timeline #play:active{transform:scale(.95)}
+html .timeline #latest{display:flex;align-items:center;justify-content:center;gap:6px;min-width:62px;height:25px;padding:4px 9px;border:1px solid var(--border);border-radius:6px;font-weight:700;letter-spacing:.4px}
+html .timeline #latest:before{content:'';width:6px;height:6px;border-radius:50%;background:var(--muted)}
+html .timeline #latest[data-live=true]{background:#c92e40;color:#fff;border-color:#e54657}html .timeline #latest[data-live=true]:before{background:#fff;box-shadow:0 0 0 3px #ffffff20}
+html .timeline #mode[data-phase=LIVE]{color:#e53d51;font-weight:700;display:flex;gap:5px;align-items:center}html .timeline #mode[data-phase=LIVE]:before{content:'';width:5px;height:5px;background:#e53d51;border-radius:50%}
+@media(prefers-reduced-motion:reduce){html .timeline #play{transition:none}}
+/* Observation cutoff is the midpoint of the fixed -7d/+7d timeline. */
+html .timeline .scrubber{position:relative;padding:0;isolation:isolate}
+html .timeline .scrubber:before{content:'';position:absolute;left:0;right:0;top:50%;height:10px;transform:translateY(-50%);border-radius:3px;background:linear-gradient(90deg,#488c8970 0 50%,#d5964270 50% 100%);pointer-events:none;z-index:-1}
+html .timeline .scrubber:after{content:'';position:absolute;left:50%;top:50%;height:22px;width:2px;transform:translate(-50%,-50%);background:var(--ink);box-shadow:0 0 0 1px var(--panel);pointer-events:none;z-index:2}
+html .timeline #time{position:relative;z-index:1;background:transparent!important;opacity:1}
+html .timeline #time::-webkit-slider-runnable-track{height:4px;background:linear-gradient(90deg,#458e88 0 50%,#d39845 50% 100%);border-radius:2px}
+html .timeline #time::-webkit-slider-thumb{margin-top:-5px}
+html .timeline #time::-moz-range-track{height:4px;background:linear-gradient(90deg,#458e88 0 50%,#d39845 50% 100%)}
+.timeline-zone{position:absolute;top:-13px;font-size:8px;line-height:9px;pointer-events:none}.timeline-zone.past{left:3px;color:var(--muted)}.timeline-zone.future{right:3px;color:var(--muted)}

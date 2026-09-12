@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {normalizeManaged,matchesManaged} from '../src/managed-filters.js';
+const lot={id:'LOT-1',code:'RQQF',equipmentByStep:['T1']},data={lots:[lot],fabs:['R3','M10'],nodes:[{fab:'R3',desc:'PLUG ETCH',operId:'E1'}],equipment:[{id:'T1'}]},s={node:0,nextNode:null,event:[0,0,0]};
+test('managed multi filters normalize, validate and intersect categories',()=>{const f=normalizeManaged({lots:'lot-1',fabs:'R3,M10',operations:'E1',equipment:'T1'},data);assert.ok(matchesManaged(lot,s,data.nodes,f));assert.equal(matchesManaged({...lot,code:'X'},s,data.nodes,{codes:['RQQF']}),false);assert.equal(matchesManaged(lot,{...s,nextNode:1},data.nodes,f),false);assert.equal(matchesManaged(lot,null,data.nodes,f),false);assert.throws(()=>normalizeManaged({fabs:'R99'},data));assert.deepEqual(f.fabs,['R3','M10']);});

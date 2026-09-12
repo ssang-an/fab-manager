@@ -10,9 +10,9 @@ test('observation badges distinguish past, exact latest snapshot and any forecas
   assert.equal(observationMode(20,20),'LIVE');
 });
 test('sample links, wafer quantities and assigned equipment have consistent identities',()=>{
-  const byId=new Map(data.lots.map(l=>[l.id,l]));assert.equal(data.lots.filter(l=>l.lot_type==='SAMPLE').length,180);
+  const byId=new Map(data.lots.map(l=>[l.id,l]));assert.equal(data.lots.filter(l=>l.lot_type==='SAMPLE').length,600);
   for(const l of data.lots){assert.ok(Number.isInteger(l.WF_QTY)&&l.WF_QTY>0&&l.WF_QTY<=25);if(l.parent_lot_id){const parent=byId.get(l.parent_lot_id);assert.equal(parent.lot_type,'MAIN');assert.equal(parent.fab,l.fab);assert.equal(parent.route,l.route);assert.ok(parent.sample_lot_ids.includes(l.id));}
-    for(const [p,id] of l.equipmentByStep.entries())if(id){assert.ok(data.nodes[l.path[p]].equipment[l.fab].primary.includes(id));assert.equal(data.equipment.find(e=>e.id===id).availability,'READY');}
+    for(const [p,id] of l.equipmentByStep.entries())if(id){assert.ok(data.nodes[l.path[p]].equipment[data.nodes[l.path[p]].fab].primary.includes(id));assert.equal(data.equipment.find(e=>e.id===id).availability,'READY');}
   }
 });
 test('JOB pairing excludes incomplete, interrupted and zero-wafer runs without crossing steps',()=>{

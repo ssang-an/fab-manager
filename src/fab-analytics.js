@@ -1,9 +1,11 @@
 import {lotState} from './graph-model.js';
+import {EventQueue} from './event-queue.js';
 import {equipmentStatus,equipmentReadyAt,seedMaintenance} from './equipment-health.js';
 
 export const OBSERVED_END=10080, FORECAST_END=20160;
 export function observationMode(minute,cutoff=OBSERVED_END){return minute<cutoff?'PAST':minute>cutoff?'SIMULATION':'LIVE';}
 export const holdRules={
+  SEND:{label:'SEND · 팹 간 이송 홀드',owner:'생산 / 물류',action:'도착 팹의 인계·반입 상태를 확인하세요. SEND는 이송 완료 시 해제되며 일반 홀드 해제 시간 시나리오 대상에서 제외합니다.'},
   AHSO:{label:'AHSO · Auto Hold Spec Out',owner:'계측 / 공정 / 품질',action:'스펙 이탈 자동 홀드입니다. 측정값과 상·하한 스펙, 반복 이탈 항목, 직전 공정·장비를 확인하세요. 재측정 필요성과 공정·품질 판정을 검토하고 승인 전 실제 홀드를 해제하지 마세요.'},
   SPC:{label:'SPC 이탈',owner:'공정 / 품질',action:'관리도·최근 계측값과 영향 범위를 확인하고 재계측 필요성을 검토하세요. 품질 승인 전 해제하지 마세요.'},
   EQP:{label:'장비 이상',owner:'설비 / 공정',action:'알람·챔버 상태와 직전 처리 이력을 확인하세요. 적격 백업 장비의 상태와 레시피 승인을 검토하세요.'},
@@ -34,7 +36,7 @@ export function pairJobs(lot,cutoff=OBSERVED_END){
   for(const event of lot.events){const [t,p,status]=event;if(t>cutoff)break;
     if(status===1)open.set(p,{start:t,interrupted:false});
     if(status===3&&open.has(p))open.get(p).interrupted=true;
-    if(status===4&&open.has(p)){const job=open.get(p);open.delete(p);if(!job.interrupted&&t>job.start&&Number.isFinite(lot.WF_QTY)&&lot.WF_QTY>0)jobs.push({lot_id:lot.id,node:lot.path[p],equipment_id:lot.equipmentByStep[p],lot_type:lot.lot_type,WF_QTY:lot.WF_QTY,job_start:job.start,job_end:t,duration_min:t-job.start,sec_per_wafer:(t-job.start)*60/lot.WF_QTY});}
+    if(status===4&&open.has(p)){const job=open.get(p);open.delete(p);if(!job.interrupted&&t>job.start&&Number.isFinite(lot.WF_QTY)&&lot.WF_QTY>0)jobs.push({lot_id:lot.id,node:lot.path[p],equipment_id:lot.equipmentByStep[p],recipe_id:lot.recipeByStep?.[p]||null,lot_type:lot.lot_type,WF_QTY:lot.WF_QTY,job_start:job.start,job_end:t,duration_min:t-job.start,sec_per_wafer:(t-job.start)*60/lot.WF_QTY});}
   }
   return jobs;
 }
@@ -55,8 +57,8 @@ export function enrichDemo(data){
     const parents=data.lots.filter((other,j)=>j%10!==0&&other.route===lot.route&&other.fab===lot.fab);
     lot.parent_lot_id=lot.lot_type==='SAMPLE'?parents[Math.floor(i/24)%parents.length].id:null;
     lot.sample_lot_ids=[];lot.holdReasons={};
-    lot.equipmentByStep=lot.path.map((n,p)=>{const eligible=data.nodes[n].equipment[lot.fab].primary.filter(id=>ready.has(id));return eligible.length?eligible[(i+p)%eligible.length]:null;});
-    for(const e of lot.events)if(e[2]===3)lot.holdReasons[e[0]]=data.nodes[lot.path[e[1]]].operId.startsWith('MET')&&(i+e[1])%3!==0?'AHSO':['SPC','EQP','SAMPLE','RECIPE'][(i+e[1])%4];
+    lot.equipmentByStep=lot.path.map((n,p)=>{const eligible=data.nodes[n].equipment[data.nodes[n].fab||lot.fab].primary.filter(id=>ready.has(id));return eligible.length?eligible[(i+p)%eligible.length]:null;});
+    for(const e of lot.events){if(e[4]==='SEND')lot.holdReasons[e[0]]='SEND';else if(e[2]===3)lot.holdReasons[e[0]]=data.nodes[lot.path[e[1]]].operId.startsWith('MET')&&(i+e[1])%3!==0?'AHSO':['SPC','EQP','SAMPLE','RECIPE'][(i+e[1])%4];}
   }
   const byId=new Map(data.lots.map(l=>[l.id,l]));for(const l of data.lots)if(l.parent_lot_id)byId.get(l.parent_lot_id).sample_lot_ids.push(l.id);
   for(const l of data.lots)for(const time of Object.keys(l.holdReasons))if(l.holdReasons[time]==='SAMPLE'&&!l.sample_lot_ids.length)l.holdReasons[time]='SPC';
@@ -69,26 +71,31 @@ export function enrichDemo(data){
 
 // Closed-WIP FCFS discrete-event approximation. No new arrivals or new holds;
 // Release is a scenario assumption, never an operational authorization.
-export function forecastLots(data,{factor=1,holdHours=3}={}){
+export function forecastLots(data,{factor=1,holdHours=3,recoveryHours=null}={}){
+  if(recoveryHours!==null&&(!Number.isFinite(recoveryHours)||recoveryHours<0||recoveryHours>168))throw new RangeError('recoveryHours must be 0..168 or null');
   if(holdHours!==null&&(!Number.isFinite(holdHours)||holdHours<0||holdHours>168))throw new RangeError('holdHours must be 0..168 or null (no release)');
   const cutoff=OBSERVED_END,horizon=FORECAST_END;
   const stats=new Map(data.timingStats.map(s=>[s.key,s]));
-  const slots=new Map(data.equipment.filter(e=>e.role==='primary'&&equipmentReadyAt(e,cutoff)<=horizon).map(e=>[e.id,Array(e.demoSlots||1).fill(equipmentReadyAt(e,cutoff))]));
+  // Scenario override is remaining time from LIVE, not a rewrite of maintenance history.
+  const readyAt=e=>recoveryHours!==null&&equipmentStatus(e,cutoff).status!=='READY'?cutoff+recoveryHours*60:equipmentReadyAt(e,cutoff);
+  const slots=new Map(data.equipment.filter(e=>e.role==='primary'&&readyAt(e)<=horizon).map(e=>[e.id,Array(e.demoSlots||1).fill(readyAt(e))]));
   const predictions=data.lots.map(l=>({id:l.id,events:[],equipmentByStep:[...l.equipmentByStep]}));
-  const pending=[];let fallbackJobs=0;
+  const pending=new EventQueue();let fallbackJobs=0;
   const duration=(lot,p,id)=>{const stat=stats.get(timingKey(id,data.nodes[lot.path[p]].desc,lot.lot_type));if(!stat||stat.count<5)fallbackJobs++;return Math.max(3,(stat?.median_sec_per_wafer??60)*lot.WF_QTY/60*factor);};
-  const emit=(i,t,p,status,arrival)=>{if(t>cutoff&&t<=horizon)predictions[i].events.push(arrival===undefined?[t,p,status]:[t,p,status,arrival]);};
-  const transfer=(i,p,end)=>{const depart=end+2,arrival=depart+16;emit(i,depart,p,6,arrival);if(arrival<=horizon){if(p+1>=data.lots[i].path.length-1)emit(i,arrival,p+1,5);else{emit(i,arrival,p+1,0);pending.push({i,p:p+1,ready:arrival});}}};
+  const emit=(i,t,p,status,arrival)=>{if(t>cutoff&&t<=horizon){const event=arrival===undefined?[t,p,status]:[t,p,status,arrival];if(status===6&&data.nodes[data.lots[i].path[p]].fab!==data.nodes[data.lots[i].path[p+1]]?.fab)event.push('SEND');predictions[i].events.push(event);}};
+  const transfer=(i,p,end)=>{const depart=end+2,arrival=depart+(data.nodes[data.lots[i].path[p]].fab!==data.nodes[data.lots[i].path[p+1]]?.fab?120:16);emit(i,depart,p,6,arrival);if(arrival<=horizon){if(p+1>=data.lots[i].path.length-1)emit(i,arrival,p+1,5);else{emit(i,arrival,p+1,0);pending.push({i,p:p+1,ready:arrival});}}};
   for(const [i,l] of data.lots.entries()){
-    const s=lotState(l,cutoff);if(!s||s.event[2]===5)continue;const p=s.event[1],id=l.equipmentByStep[p];
+    const s=lotState(l,cutoff);
+    if(!s&&l.plannedRelease!=null){if(l.plannedRelease>cutoff&&l.plannedRelease<=horizon){emit(i,l.plannedRelease,0,0);pending.push({i,p:0,ready:l.plannedRelease});}continue;}
+    if(!s||s.event[2]===5)continue;const p=s.event[1],id=l.equipmentByStep[p];
     if(s.event[2]===3){if(holdHours===null)continue;const release=Math.max(cutoff+.01,s.event[0]+holdHours*60);if(release<=horizon){emit(i,release,p,0);pending.push({i,p,ready:release});}continue;}
     if(s.nextNode!==null){const arrival=s.event[3];if(p+1>=l.path.length-1)emit(i,arrival,p+1,5);else{emit(i,arrival,p+1,0);pending.push({i,p:p+1,ready:arrival});}}
     else if([1,2].includes(s.event[2])){if(!slots.has(id))continue;const start=[...l.events].reverse().find(e=>e[1]===p&&e[2]===1)?.[0]??cutoff;const end=Math.max(cutoff+1,start+duration(l,p,id));const lanes=slots.get(id);if(lanes){const k=lanes.indexOf(Math.min(...lanes));lanes[k]=end;}emit(i,end,p,4);transfer(i,p,end);}
     else if(s.event[2]===4)transfer(i,p,cutoff);
     else pending.push({i,p,ready:cutoff+1});
   }
-  while(pending.length){pending.sort((a,b)=>b.ready-a.ready||b.i-a.i);const task=pending.pop(),{i,p,ready}=task,l=data.lots[i];
-    const eligible=data.nodes[l.path[p]].equipment[l.fab].primary.filter(id=>slots.has(id));if(!eligible.length)continue;
+  while(pending.length){const task=pending.pop(),{i,p,ready}=task,l=data.lots[i];
+    const eligible=data.nodes[l.path[p]].equipment[data.nodes[l.path[p]].fab||l.fab].primary.filter(id=>slots.has(id));if(!eligible.length)continue;
     let best=null;for(const id of eligible){const lanes=slots.get(id),slot=lanes.indexOf(Math.min(...lanes)),start=Math.max(ready+.01,lanes[slot]);if(!best||start<best.start)best={id,slot,start};}
     predictions[i].equipmentByStep[p]=best.id;if(best.start>horizon)continue;
     const end=best.start+duration(l,p,best.id);slots.get(best.id)[best.slot]=end;

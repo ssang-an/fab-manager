@@ -55,12 +55,14 @@ export function lotState(lot, minute) {
   const explicit=event[2]===6;
   const transit=explicit||(event[2]===4&&next&&next[1]!==event[1]);
   const arrival=explicit?event[3]:next?.[0];
-  return {lot,index,event,node:lot.path[event[1]],nextNode:transit?lot.path[explicit?event[1]+1:next[1]]:null,fraction:transit?Math.max(0,Math.min(1,(minute-event[0])/(arrival-event[0]))):0};
+  const holdCode=event[4]==='SEND'?'SEND':event[2]===3?(lot.holdReasons?.[event[0]]||'UNKNOWN'):null;
+  return {lot,index,event,holdCode,eventCode:holdCode?'hold':null,node:lot.path[event[1]],nextNode:transit?lot.path[explicit?event[1]+1:next[1]]:null,fraction:transit?Math.max(0,Math.min(1,(minute-event[0])/(arrival-event[0]))):0};
 }
 export function projectPoint(point, camera) {
   let x=point.x-2535,y=(point.y-1725)*.45,z=(point.z||0)-780,depth=0;
-  if(camera.depth){const m=cameraRotation(camera),rx=m[0]*x+m[1]*y+m[2]*z,ry=m[3]*x+m[4]*y+m[5]*z;depth=m[6]*x+m[7]*y+m[8]*z;const perspective=6500/(6500+depth);x=rx*perspective;y=ry*perspective;}
-  return camera.vertical?{x:y,y:x,depth}:{x,y,depth};
+  const depthMix=camera.depthMix??(camera.depth?1:0),orientationMix=camera.orientationMix??(camera.vertical?1:0);
+  if(depthMix>0){const m=cameraRotation(camera),rx=m[0]*x+m[1]*y+m[2]*z,ry=m[3]*x+m[4]*y+m[5]*z;depth=(m[6]*x+m[7]*y+m[8]*z)*depthMix;const perspective=6500/(6500+depth);x=(x*(1-depthMix)+rx*depthMix)*perspective;y=(y*(1-depthMix)+ry*depthMix)*perspective;}
+  return {x:x*(1-orientationMix)+y*orientationMix,y:y*(1-orientationMix)+x*orientationMix,depth};
 }
 
 export function wipRanking(states){
