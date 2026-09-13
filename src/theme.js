@@ -10,6 +10,6 @@ export function initTheme(onChange){
   const button=document.createElement('button');button.id='theme-toggle';button.type='button';button.setAttribute('aria-label','라이트 테마');
   document.querySelector('#navigator-toggle, #sidebar-toggle').before(button);
   let light=false;try{light=localStorage.getItem('fab-manager-theme')==='light';}catch{}
-  const apply=()=>{document.documentElement.dataset.theme=light?'light':'dark';button.textContent=light?'☾ DARK':'☀ LIGHT';button.setAttribute('aria-pressed',String(light));button.title=light?'다크 테마로 전환':'라이트 테마로 전환';onChange(light);};
+  const apply=()=>{document.documentElement.dataset.theme=light?'light':'dark';button.innerHTML=`<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${light?'<path d="M20.5 13.1A8.5 8.5 0 0 1 10.9 3.5a8.5 8.5 0 1 0 9.6 9.6Z"/>':'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'}</svg>`;button.setAttribute('aria-pressed',String(light));button.title=light?'다크 테마로 전환':'라이트 테마로 전환';onChange(light);};
   button.onclick=()=>{light=!light;try{localStorage.setItem('fab-manager-theme',light?'light':'dark');}catch{}apply();};apply();
 }

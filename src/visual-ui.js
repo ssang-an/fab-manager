@@ -7,7 +7,7 @@ export function createVisualUI(api,areas){
   let areaShown=true;try{areaShown=localStorage.getItem('fab-area-load-visible')!=='false';}catch{}
   function syncAreaPanel(){areaBars.hidden=!areaShown;areaToggle.textContent=areaShown?'AREA LOAD · 접기 ▴':'AREA LOAD · 펼치기 ▾';areaToggle.setAttribute('aria-expanded',String(areaShown));}
   areaToggle.onclick=()=>{areaShown=!areaShown;syncAreaPanel();try{localStorage.setItem('fab-area-load-visible',String(areaShown));}catch{}};syncAreaPanel();
-  const panel=document.querySelector('#mini-panel'),toggle=document.createElement('button');toggle.id='navigator-toggle';toggle.type='button';toggle.textContent='NAVIGATOR';toggle.setAttribute('aria-controls','mini-panel');document.querySelector('#sidebar-toggle').before(toggle);
+  const panel=document.querySelector('#mini-panel'),toggle=document.createElement('button');toggle.id='navigator-toggle';toggle.type='button';toggle.textContent='NAVIGATOR';toggle.setAttribute('aria-controls','mini-panel');
   const close=document.createElement('button');close.id='mini-close';close.type='button';close.textContent='×';close.setAttribute('aria-label','Navigator 닫기');panel.querySelector('.visual-heading').append(close);
   let visible=true;try{visible=localStorage.getItem('fab-navigator-visible')!=='false';}catch{}
   const setVisible=value=>{visible=value;panel.hidden=!value;toggle.setAttribute('aria-expanded',String(value));toggle.setAttribute('aria-label',value?'Navigator 닫기':'Navigator 열기');toggle.title=value?'Navigator 닫기':'Navigator 열기';try{localStorage.setItem('fab-navigator-visible',String(value));}catch{}api.dirty();};

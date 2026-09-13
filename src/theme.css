@@ -41,3 +41,6 @@ html #canvas-area::before,html #canvas-area::after{
 html #canvas-area::before{top:0;left:0}
 html #canvas-area::after{bottom:0;right:0;transform:rotate(180deg)}
 html #graph{position:relative;z-index:0}
+html body>header #theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:7px;border:0;color:#c3cbd1;flex-shrink:0}
+html body>header #theme-toggle:hover{background:#ffffff0d;color:#fff}
+html body>header .breadcrumb{align-self:center;transform:translateY(5px);font-size:11px;line-height:16px;letter-spacing:.1px;color:#919ba5}

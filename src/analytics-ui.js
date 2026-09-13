@@ -8,7 +8,8 @@ const fmt=v=>Number(v).toLocaleString('ko-KR',{maximumFractionDigits:1});
 export function createAnalyticsUI(api){
   const $=s=>document.querySelector(s);let mode='process',eqQuery='';
   $('#wip-ranking').insertAdjacentHTML('afterend','<div id="area-equipment-ranking" hidden></div>');
-  $('header .sample').insertAdjacentHTML('beforebegin','<span id="observation-mode" role="status" aria-live="polite">LOADING</span>');
+  const phaseStyle=document.createElement('link');phaseStyle.rel='stylesheet';phaseStyle.href='/src/phase-frame.css';document.head.append(phaseStyle);
+  $('#canvas-area').insertAdjacentHTML('beforeend','<div id="phase-frame" aria-hidden="true"></div>');
   $('#latest').textContent='LIVE로 ↗';$('#latest').title='샘플 데이터의 최신 관측 시점으로 이동 (실시간 MES 미연결)';
   $('.wip-panel .sidebar-heading').innerHTML='WIP RANKING <select id="rank-mode" aria-label="WIP 랭킹 기준"><option value="process">공정</option><option value="equipment">장비</option><option value="hold">홀드</option></select>';
   $('.toolbar').insertAdjacentHTML('beforeend','<div class="equipment-search"><input id="equipment-search" list="equipment-options" placeholder="장비 검색 · M10-ETCH-1" aria-label="장비명 검색"><datalist id="equipment-options"></datalist><button id="clear-equipment" aria-label="장비 검색 해제">×</button></div><button id="analysis-toggle" aria-expanded="false">분석 / 예측</button>');
@@ -35,7 +36,8 @@ export function createAnalyticsUI(api){
     const predicted=minute>OBSERVED_END;$('#canvas-area').classList.toggle('forecast-view',predicted);$('#forecast-banner').hidden=!predicted;
     $('#forecast-banner').textContent=`SIMULATION +${fmt((minute-OBSERVED_END)/1440)}일 · ${forecast.factor===1?'기준':forecast.factor<1?'처리시간 −20%':'처리시간 +25%'} · HOLD ${forecast.holdHours===null?'미해제':forecast.holdHours+'h'} · 실측 아님`;
     const phase=observationMode(minute),explanation=phase==='LIVE'?'최신 샘플 관측 · 실시간 MES 미연결':phase==='PAST'?'과거 이력 조회 · 샘플 데이터':'가정 기반 미래 시뮬레이션 · 실측 아님';
-    for(const selector of ['#mode','#observation-mode']){const badge=$(selector);badge.textContent=phase;badge.dataset.phase=phase;badge.title=explanation;}
+    const badge=$('#mode');badge.textContent=phase;badge.dataset.phase=phase;badge.title=explanation;
+    $('#canvas-area').dataset.phase=phase;
     const liveButton=$('#latest');liveButton.dataset.live=String(phase==='LIVE');liveButton.setAttribute('aria-pressed',String(phase==='LIVE'));liveButton.textContent=phase==='LIVE'?'LIVE':'LIVE로';liveButton.title=phase==='LIVE'?'최신 샘플 관측 상태 · 실시간 MES 미연결':'최신 관측 시점으로 이동';
     $('.eyebrow').textContent=`${phase} / ${explanation}`;
     $('#end-label').textContent=api.format(FORECAST_END);$('.scrubber>div:not(.forecast-axis)>span:nth-child(2)').textContent='14 DAYS / KST';

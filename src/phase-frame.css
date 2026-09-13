@@ -1,0 +1,17 @@
+/* Status belongs to the map perimeter, never to WIP density. */
+html #canvas-area.forecast-view{box-shadow:none}
+#canvas-area{--phase-edge:#ec6173}
+#canvas-area[data-phase=PAST]{--phase-edge:#42b8a6}
+#canvas-area[data-phase=SIMULATION]{--phase-edge:#e4ba43}
+html[data-theme=light] #canvas-area{--phase-edge:#c63349}
+html[data-theme=light] #canvas-area[data-phase=PAST]{--phase-edge:#158574}
+html[data-theme=light] #canvas-area[data-phase=SIMULATION]{--phase-edge:#a57b09}
+#phase-frame{position:absolute;inset:0;z-index:30;pointer-events:none;overflow:hidden;color:var(--phase-edge)}
+#phase-frame:before{content:'';position:absolute;inset:2px;border:2px solid currentColor;box-shadow:inset 0 0 5px currentColor,0 0 5px currentColor;opacity:.65;pointer-events:none;animation:phase-breathe 4.5s ease-in-out infinite}
+#canvas-area:not([data-phase]) #phase-frame{display:none}
+html .timeline #mode[data-phase=PAST]{color:#299e8d;font-weight:700}
+html .timeline #mode[data-phase=SIMULATION]{color:#c29b2a;font-weight:700}
+html[data-theme=light] .timeline #mode[data-phase=PAST]{color:#117463}
+html[data-theme=light] .timeline #mode[data-phase=SIMULATION]{color:#886308}
+@keyframes phase-breathe{0%,100%{opacity:.25}50%{opacity:1}}
+@media(prefers-reduced-motion:reduce){#phase-frame:before{animation:none;opacity:.55}}
